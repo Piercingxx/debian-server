@@ -96,18 +96,26 @@ install_system() {
     sudo apt install lua5.4 -y
     sudo apt install luarocks -y
     sudo apt install python3-pip -y
-    if ! command_exists cargo; then
+    # Install Yazi via cargo (Rust package manager)
     # Ensure Rust is installed
+    if ! command_exists cargo; then
         echo -e "${YELLOW}Installing Rust toolchain…${NC}"
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        # Load the new cargo environment for this shell
         source "$HOME/.cargo/env"
     fi
+    # Verify cargo is now available
+    if ! command_exists cargo; then
+        echo -e "${RED}Cargo could not be found after installation. Aborting Yazi install.${NC}"
+        exit 1
+    fi
     echo -e "${YELLOW}Installing Yazi via cargo…${NC}"
-    cargo install yazi
-    # Add Yazi to PATH for the current session
+    # Ensure Yazi's binary directory is in the PATH for this session
     export PATH="$HOME/.cargo/bin:$PATH"
-    # Create symlink
+    # Create a symlink for quick access
     sudo ln -sf "$HOME/.cargo/bin/yazi" /usr/local/bin/yazi
+    # Install Yazi from crates.io (locked to the latest compatible version)
+    cargo install --locked yazi
 
 
     # Nvidia
