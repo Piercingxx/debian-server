@@ -109,13 +109,21 @@ install_system() {
         echo -e "${RED}Cargo could not be found after installation. Aborting Yazi install.${NC}"
         exit 1
     fi
-    echo -e "${YELLOW}Installing Yazi via cargo…${NC}"
+    echo -e "${YELLOW}Installing Yazi via source build…${NC}"
     # Ensure Yazi's binary directory is in the PATH for this session
     export PATH="$HOME/.cargo/bin:$PATH"
-    # Create a symlink for quick access
-    sudo ln -sf "$HOME/.cargo/bin/yazi" /usr/local/bin/yazi
-    # Install Yazi from crates.io (locked to the latest compatible version)
-    cargo install --locked yazi
+    # Clone the Yazi repository (use the latest release tag)
+    YAZI_REPO="https://github.com/sxyazi/yazi.git"
+    YAZI_DIR="/tmp/yazi-build"
+    git clone --depth 1 "$YAZI_REPO" "$YAZI_DIR" || { echo -e "${RED}Failed to clone Yazi repo.${NC}"; exit 1; }
+    # Build the binary
+    cd "$YAZI_DIR" || exit
+    cargo build --release || { echo -e "${RED}Cargo build failed.${NC}"; exit 1; }
+    # Install the binary
+    sudo install -Dm755 target/release/yazi /usr/local/bin/yazi
+    # Clean up
+    cd "$BUILD_DIR" || exit
+    rm -rf "$YAZI_DIR"
 
 
     # Nvidia
