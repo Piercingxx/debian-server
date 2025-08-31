@@ -75,7 +75,6 @@ install_system() {
     sudo apt install pipx -y
 
 
-
     # ---------- Cockpit ----------
     echo -e "${YELLOW}Installing Cockpit web‑console…${NC}"
     sudo apt-get install -y cockpit
@@ -86,7 +85,6 @@ install_system() {
     sudo ufw allow OpenSSH
     sudo ufw allow 9090/tcp
     sudo ufw enable
-
 
 
     # ---------- Yazi & Neovim ----------
@@ -137,13 +135,46 @@ install_system() {
     # Clean up
     apt autoremove -y
 
+
+    # ---------- Fonts ----------
+    echo -e "${YELLOW}Installing font…${NC}"
+    sudo apt-get install -y fonts-noto fonts-anonymous-pro fonts-firacode fonts-jetbrains-mono
+    mkdir -p "/home/$USERNAME/.local/share/fonts"
+
+
+    # ---------- Piercing‑dots ----------
+    echo -e "${YELLOW}Cloning piercing‑dots repo…${NC}"
+    rm -rf piercing-dots
+    git clone --depth 1 https://github.com/Piercingxx/piercing-dots.git
+    cd piercing-dots || exit
+    echo -e "${YELLOW}Running piercing‑dots installer…${NC}"
+    chmod u+x install.sh
+    ./install.sh
+    echo -e "${YELLOW}Replacing .bashrc with custom version…${NC}"
+    cp -f resources/bash/.bashrc "/home/$USERNAME/.bashrc"
+    source "/home/$USERNAME/.bashrc"
+    cd "$BUILD_DIR" || exit
+    rm -rf piercing-dots
+    source ~/.bashrc
+
+
+    # ---------- Ollama ----------
+    echo -e "${YELLOW}Installing Ollama…${NC}"
+    curl -fsSL https://ollama.com/install.sh | sh
+    # ollama pull gpt-oss:120b
+    # ollama pull gemma3n:latest
+    # ollama pull skippy:latest
+    # ollama pull gpt-oss:20b
+    # ollama pull codellama:latest
+    # ollama pull gemma3:latest
+
+
     # Tailscale
     curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
     sudo apt-get update -y
     sudo apt-get install tailscale -y
     sudo tailscale up
-
 
 
     # ---------- Docker ----------
@@ -196,30 +227,6 @@ install_system() {
 #    docker compose up -d
 #    cd "$BUILD_DIR" || exit
 
-    # ---------- Ollama ----------
-    echo -e "${YELLOW}Installing Ollama…${NC}"
-    curl -fsSL https://ollama.com/install.sh | sh
-    # ollama pull codellama:latest
-    # ollama pull gemma3:latest
-
-    # ---------- Fonts ----------
-    echo -e "${YELLOW}Installing common fonts…${NC}"
-    sudo apt-get install -y fonts-noto fonts-noto-color-emoji fonts-fira-code
-
-
-    # ---------- Piercing‑dots ----------
-    echo -e "${YELLOW}Cloning piercing‑dots repo…${NC}"
-    rm -rf piercing-dots
-    git clone --depth 1 https://github.com/Piercingxx/piercing-dots.git
-    cd piercing-dots || exit
-    echo -e "${YELLOW}Running piercing‑dots installer…${NC}"
-    chmod u+x install.sh
-    ./install.sh
-    echo -e "${YELLOW}Replacing .bashrc with custom version…${NC}"
-    cp -f resources/bash/.bashrc "/home/$USERNAME/.bashrc"
-    source "/home/$USERNAME/.bashrc"
-    cd "$BUILD_DIR" || exit
-    rm -rf piercing-dots
 }
 
 # ---------- Main ----------
