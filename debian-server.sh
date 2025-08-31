@@ -72,7 +72,6 @@ install_system() {
     sudo apt install gettext -y
     sudo apt install gcc -y
     sudo apt install curl -y
-    sudo apt install cargo -y
     sudo apt install pipx -y
 
 
@@ -97,9 +96,14 @@ install_system() {
     sudo apt install lua5.4 -y
     sudo apt install luarocks -y
     sudo apt install python3-pip -y
-    # Install Yazi via cargo (Rust package manager)
+    if ! command_exists cargo; then
+    # Ensure Rust is installed
+        echo -e "${YELLOW}Installing Rust toolchain…${NC}"
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        source "$HOME/.cargo/env"
+    fi
     echo -e "${YELLOW}Installing Yazi via cargo…${NC}"
-    cargo install yazi-fm yazi-cli
+    cargo install yazi
     # Add Yazi to PATH for the current session
     export PATH="$HOME/.cargo/bin:$PATH"
     # Create symlink
@@ -117,14 +121,12 @@ install_system() {
     # Clean up
     apt autoremove -y
 
-# Tailscale
+    # Tailscale
     curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
     sudo apt-get update -y
     sudo apt-get install tailscale -y
     sudo tailscale up
-
-
 
 
 
