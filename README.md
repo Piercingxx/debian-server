@@ -21,7 +21,6 @@ It bundles everything you need to get your video, data, and AI projects off the 
 | **Fonts as UI** | noto, anonymous-pro, firacode, jetbrains-mono – if you only see font as your UI you want options. |
 | **Yazi & Neovim** | Modern file‑manager & editor – you’re a developer, not a Windows user. |
 | **Piercing‑dots** | Custom dotfiles & shell tweaks – your shell should be as badass as you are. |
-| **Cockpit** | Web‑based system console – you want to manage your server from the comfort of a browser. |
 | **Additional** | Firewall, unattended‑upgrades, swap, etc. – cronjob is also valid. |
 
 The script uses a **whiptail** menu to guide you through the installation steps.  
@@ -32,7 +31,6 @@ It can also be run non‑interactively by passing the `--no‑menu` flag (see *A
 
 ## 🚀 How to Use It (Because You’re Still Reading)
 
-  
 
 ```bash
 
@@ -101,19 +99,7 @@ If you only need the driver stack:
 
 ### Docker Compose
 
-The script creates a `nextcloud` directory under the build directory and starts the stack with:
-
-```bash
-docker compose up -d
-```
-
-You can later manage it manually:
-
-```bash
-cd /path/to/nextcloud
-docker compose down
-docker compose up -d
-```
+This script *only* installs Docker, I have removed the automation of Nextcloud because you *must* first setup the integration with whiptail.
 
 ### Ollama
 
@@ -125,7 +111,7 @@ ollama pull skyppy:latest
 
 ### Yazi & Neovim
 
-Yazi is installed via Cargo. If you want to use it from the terminal:
+Yazi is installed via Cargo. To use it from the terminal:
 
 ```bash
 yazi
@@ -137,6 +123,16 @@ Neovim is installed via `apt`. Launch it with:
 vi
 ```
 
+### Piercing Dots
+
+On Gnome and Hyprland systems the entire script makes more sense however I just dump my dot files in here because I'm lazy. I will edit this down at some point, the .bashrc and the Maintenance.sh are the highlight of the show here.
+The .bashrc has all my shortcuts.
+Maintenance.sh will auto update everything including itself. You can even set it to a cron job to have it run auto-magically at whatever interval you wish.
+To use it from the terminal:
+
+```bash
+xx
+```
 
 ---
 

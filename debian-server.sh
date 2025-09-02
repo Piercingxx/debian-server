@@ -5,13 +5,10 @@
 # Features:
 #   • System update & upgrade
 #   • NVIDIA 4080 driver stack
-#   • DaVinci Resolve Studio (with deps)
 #   • Docker + Nextcloud (docker‑compose)
 #   • Ollama (local LLM runtime)
 #   • Customizations (piercing‑dots)
-#   • Optional XFCE desktop
 #   • Fonts, swap, firewall, unattended‑upgrades (optional)
-#   • Cockpit web‑console
 # ----------------------------------------------------------------
 
 set -euo pipefail
@@ -56,11 +53,11 @@ check_network() {
 # ---------- Core install logic ----------
 install_system() {
     echo -e "${YELLOW}Updating system packages…${NC}"
-    sudo apt-get update -y
-    sudo apt-get upgrade -y
-    sudo apt-get dist-upgrade -y
-    sudo apt-get autoremove -y
-    sudo apt-get clean
+    sudo apt update -y
+    sudo apt upgrade -y
+    sudo apt dist-upgrade -y
+    sudo apt autoremove -y
+    sudo apt clean
 
 # Depends
     sudo apt install wget gpg -y 
@@ -73,17 +70,13 @@ install_system() {
     sudo apt install gcc -y
     sudo apt install curl -y
     sudo apt install pipx -y
+    sudo apt install nodejs -y
 
-
-    # ---------- Cockpit ----------
-    echo -e "${YELLOW}Installing Cockpit web‑console…${NC}"
-    sudo apt-get install -y cockpit
-    sudo systemctl enable --now cockpit.socket
 
     # Firewall
     sudo apt install ufw -y
     sudo ufw allow OpenSSH
-    sudo ufw allow 9090/tcp
+    sudo ufw allow 8080/tcp
     sudo ufw enable
 
 
@@ -130,15 +123,15 @@ install_system() {
     wget https://developer.download.nvidia.com/compute/cuda/13.0.0/local_installers/cuda-repo-debian12-13-0-local_13.0.0-580.65.06-1_amd64.deb
     sudo dpkg -i cuda-repo-debian12-13-0-local_13.0.0-580.65.06-1_amd64.deb
     sudo cp /var/cuda-repo-debian12-13-0-local/cuda-*-keyring.gpg /usr/share/keyrings/
-    sudo apt-get update
-    sudo apt-get -y install cuda-toolkit-13-0
+    sudo apt update
+    sudo apt install cuda-toolkit-13-0 -y
     # Clean up
     apt autoremove -y
 
 
     # ---------- Fonts ----------
     echo -e "${YELLOW}Installing font…${NC}"
-    sudo apt-get install -y fonts-noto fonts-anonymous-pro fonts-firacode fonts-jetbrains-mono
+    sudo apt install fonts-noto fonts-anonymous-pro fonts-firacode fonts-jetbrains-mono -y
     mkdir -p "/home/$USERNAME/.local/share/fonts"
 
 
@@ -162,18 +155,17 @@ install_system() {
     echo -e "${YELLOW}Installing Ollama…${NC}"
     curl -fsSL https://ollama.com/install.sh | sh
     # ollama pull gpt-oss:120b
-    # ollama pull gemma3n:latest
     # ollama pull skippy:latest
     # ollama pull gpt-oss:20b
-    # ollama pull codellama:latest
     # ollama pull gemma3:latest
+    # ollama pull gemma3n:latest
 
 
     # Tailscale
     curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
-    sudo apt-get update -y
-    sudo apt-get install tailscale -y
+    sudo apt update -y
+    sudo apt install tailscale -y
     sudo tailscale up
 
 
@@ -183,49 +175,17 @@ install_system() {
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" | \
         sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt-get update -y
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    sudo apt update -y
+    sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
     sudo usermod -aG docker "$USERNAME"
     newgrp docker
 
+
 #    # ---------- Nextcloud ----------
-#    echo -e "${YELLOW}Setting up Nextcloud via Docker Compose…${NC}"
-#    NEXTCLOUD_DIR="$HOME/nextcloud"
-#    mkdir -p "$NEXTCLOUD_DIR"
-#    cat > "$NEXTCLOUD_DIR/docker-compose.yml" <<'EOF'
-#version: '3'
-#services:
-#  db:
-#    image: mariadb:10.6
-#    restart: always
-#    environment:
-#      MYSQL_ROOT_PASSWORD: root_password
-#      MYSQL_PASSWORD: nextcloud
-#      MYSQL_DATABASE: nextcloud
-#      MYSQL_USER: nextcloud
-#    volumes:
-#      - db:/var/lib/mysql
-#  app:
-#    image: nextcloud:27
-#    restart: always
-#    ports:
-#      - "8080:80"
-#    environment:
-#      MYSQL_PASSWORD: nextcloud
-#      MYSQL_DATABASE: nextcloud
-#      MYSQL_USER: nextcloud
-#      MYSQL_HOST: db
-#    volumes:
-#      - nextcloud:/var/www/html
-#      - nextcloud_data:/var/www/html/data
-#volumes:
-#  db:
-#  nextcloud:
-#  nextcloud_data:
-#EOF
-#    cd "$NEXTCLOUD_DIR" || exit
-#    docker compose up -d
-#    cd "$BUILD_DIR" || exit
+#   Setup Nextcloud via Docker after first boot
+#   See: https://github.com/nextcloud/all-in-one/discussions/5439
+#   Everything you need to get Nextcloud running inside your tailscale network is there.
+#   Also check out Headscale for a self-hosted alternative to Tailscale.
 
 }
 
@@ -236,7 +196,7 @@ BUILD_DIR=$(pwd)
 # Ensure whiptail is present
 if ! command_exists whiptail; then
     echo -e "${YELLOW}Installing whiptail…${NC}"
-    sudo apt-get install -y whiptail
+    sudo apt install whiptail -y
 fi
 
 check_network
