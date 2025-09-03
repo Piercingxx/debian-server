@@ -34,13 +34,14 @@ It can also be run non‑interactively by passing the `--no‑menu` flag (see *A
 
 ```bash
 
-# Make the script executable
-chmod +x debian-server.sh
+sudo apt install git kitty -y
 
-# (Optional) Enable XFCE
-export INSTALL_XFCE=true
+git clone https://github.com/PiercingXX/Debian-Server
 
-# Run the installer
+chmod -R u+x debian-server
+
+cd debian-server
+
 sudo ./debian-server.sh
 
 ```
