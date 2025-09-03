@@ -5,21 +5,20 @@
 # Features:
 #   • System update & upgrade
 #   • NVIDIA 4080 driver stack
-#   • Docker + Nextcloud (docker‑compose)
-#   • Ollama (local LLM runtime)
-#   • Customizations (piercing‑dots)
-#   • Fonts, swap, firewall, unattended‑upgrades (optional)
+#   • Docker
+#   • Ollama (local LLM)
+#   • Piercing‑dots
 # ----------------------------------------------------------------
 
 set -euo pipefail
 
-# ---------- Colors ----------
+# Colors
 YELLOW='\e[33m'
 GREEN='\e[32m'
 BLUE='\e[34m'
 NC='\e[0m'
 
-# ---------- Helper functions ----------
+# Helper functions
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
 cache_sudo_credentials() {
@@ -39,7 +38,7 @@ menu() {
         "Exit"              "Exit the script" 3>&1 1>&2 2>&3
 }
 
-# ---------- Network check ----------
+# Network check
 check_network() {
     if command_exists nmcli; then
         state=$(nmcli -t -f STATE g)
@@ -50,7 +49,30 @@ check_network() {
     ping -c 1 -W 1 8.8.8.8 >/dev/null 2>&1 || { echo "Internet unreachable."; exit 1; }
 }
 
-# ---------- Core install logic ----------
+install_starship() {
+    if ! command_exists starship; then
+        if ! curl -sS https://starship.rs/install.sh | sh; then
+            print_colored "$RED" "Something went wrong during starship install!"
+            exit 1
+        fi
+    else
+        printf "Starship already installed\n"
+    fi
+}
+
+install_zoxide() {
+    if ! command_exists zoxide; then
+        if ! curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh; then
+            print_colored "$RED" "Something went wrong during zoxide install!"
+            exit 1
+        fi
+    else
+        printf "Zoxide already installed\n"
+    fi
+}
+
+
+# Core install
 install_system() {
     echo -e "${YELLOW}Updating system packages…${NC}"
     sudo apt update -y
@@ -72,22 +94,24 @@ install_system() {
     sudo apt install pipx -y
     sudo apt install nodejs -y
 
-
-    # Firewall
+# Firewall
     sudo apt install ufw -y
     sudo ufw allow OpenSSH
     sudo ufw allow 8080/tcp
     sudo ufw enable
 
+# Starship & Zoxide
+    install_starship
+    install_zoxide
 
-    # ---------- Yazi & Neovim ----------
+# Yazi & Neovim
     echo -e "${YELLOW}Installing Yazi (file‑manager) and Neovim…${NC}"
     # Install Neovim
     sudo apt install neovim -y
     sudo apt install lua5.4 -y
     sudo apt install luarocks -y
     sudo apt install python3-pip -y
-    # Install Yazi via cargo (Rust package manager)
+    # Install Yazi
     # Ensure Rust is installed
     if ! command_exists cargo; then
         echo -e "${YELLOW}Installing Rust toolchain…${NC}"
@@ -117,7 +141,7 @@ install_system() {
     rm -rf "$YAZI_DIR"
 
 
-    # Nvidia
+# Nvidia
     echo "Installing Nvidia drivers and CUDA..."
     # Update package lists
     wget https://developer.download.nvidia.com/compute/cuda/13.0.0/local_installers/cuda-repo-debian12-13-0-local_13.0.0-580.65.06-1_amd64.deb
@@ -129,13 +153,13 @@ install_system() {
     apt autoremove -y
 
 
-    # ---------- Fonts ----------
+# Fonts
     echo -e "${YELLOW}Installing font…${NC}"
     sudo apt install fonts-noto fonts-anonymous-pro fonts-firacode fonts-jetbrains-mono -y
     mkdir -p "/home/$USERNAME/.local/share/fonts"
 
 
-    # ---------- Piercing‑dots ----------
+# Piercing‑dots
     echo -e "${YELLOW}Cloning piercing‑dots repo…${NC}"
     rm -rf piercing-dots
     git clone --depth 1 https://github.com/Piercingxx/piercing-dots.git
@@ -151,7 +175,7 @@ install_system() {
     source ~/.bashrc
 
 
-    # ---------- Ollama ----------
+# Ollama
     echo -e "${YELLOW}Installing Ollama…${NC}"
     curl -fsSL https://ollama.com/install.sh | sh
     # ollama pull gpt-oss:120b
@@ -160,16 +184,7 @@ install_system() {
     # ollama pull gemma3:latest
     # ollama pull gemma3n:latest
 
-
-    # Tailscale
-    curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
-    curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
-    sudo apt update -y
-    sudo apt install tailscale -y
-    sudo tailscale up
-
-
-    # ---------- Docker ----------
+# Docker
     echo -e "${YELLOW}Installing Docker Engine…${NC}"
     sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -180,8 +195,17 @@ install_system() {
     sudo usermod -aG docker "$USERNAME"
     newgrp docker
 
+# Tailscale
+    # The Tailscale install is now handled by the same compose.yaml as Nextcloud
+    # Do not install Tailscale here to avoid conflicts
+    # curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+    # curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
+    # sudo apt update -y
+    # sudo apt install tailscale -y
+    # sudo tailscale up
 
-#    # ---------- Nextcloud ----------
+    
+# Nextcloud
 #   Setup Nextcloud via Docker after first boot
 #   See: https://github.com/nextcloud/all-in-one/discussions/5439
 #   Everything you need to get Nextcloud running inside your tailscale network is there.
@@ -189,7 +213,7 @@ install_system() {
 
 }
 
-# ---------- Main ----------
+# Main
 USERNAME=$(id -u -n 1000)
 BUILD_DIR=$(pwd)
 
