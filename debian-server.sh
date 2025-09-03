@@ -100,6 +100,52 @@ install_system() {
     sudo ufw allow 8080/tcp
     sudo ufw enable
 
+# Ollama
+    echo -e "${YELLOW}Installing Ollama…${NC}"
+    curl -fsSL https://ollama.com/install.sh | sh
+    # ollama pull gpt-oss:120b
+    # ollama pull skippy:latest
+    # ollama pull gpt-oss:20b
+    # ollama pull gemma3:latest
+    # ollama pull gemma3n:latest
+
+# Docker
+    echo -e "${YELLOW}Installing Docker Engine…${NC}"
+    sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" | \
+        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt update -y
+    sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+    sudo usermod -aG docker "$USERNAME"
+    newgrp docker
+
+# Tailscale
+    # The Tailscale install is now handled by the same compose.yaml as Nextcloud
+    # Do not install Tailscale here to avoid conflicts
+    # curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+    # curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
+    # sudo apt update -y
+    # sudo apt install tailscale -y
+    # sudo tailscale up
+
+# Nextcloud
+#   Setup Nextcloud via Docker after first boot
+#   See: https://github.com/nextcloud/all-in-one/discussions/5439
+#   Everything you need to get Nextcloud running inside your tailscale network is there.
+#   Also check out Headscale for a self-hosted alternative to Tailscale.
+
+# Nvidia
+    echo "Installing Nvidia drivers and CUDA..."
+    # Update package lists
+    wget https://developer.download.nvidia.com/compute/cuda/13.0.0/local_installers/cuda-repo-debian12-13-0-local_13.0.0-580.65.06-1_amd64.deb
+    sudo dpkg -i cuda-repo-debian12-13-0-local_13.0.0-580.65.06-1_amd64.deb
+    sudo cp /var/cuda-repo-debian12-13-0-local/cuda-*-keyring.gpg /usr/share/keyrings/
+    sudo apt update
+    sudo apt install cuda-toolkit-13-0 -y
+    # Clean up
+    apt autoremove -y
+
 # Starship & Zoxide
     install_starship
     install_zoxide
@@ -140,24 +186,10 @@ install_system() {
     cd "$BUILD_DIR" || exit
     rm -rf "$YAZI_DIR"
 
-
-# Nvidia
-    echo "Installing Nvidia drivers and CUDA..."
-    # Update package lists
-    wget https://developer.download.nvidia.com/compute/cuda/13.0.0/local_installers/cuda-repo-debian12-13-0-local_13.0.0-580.65.06-1_amd64.deb
-    sudo dpkg -i cuda-repo-debian12-13-0-local_13.0.0-580.65.06-1_amd64.deb
-    sudo cp /var/cuda-repo-debian12-13-0-local/cuda-*-keyring.gpg /usr/share/keyrings/
-    sudo apt update
-    sudo apt install cuda-toolkit-13-0 -y
-    # Clean up
-    apt autoremove -y
-
-
 # Fonts
     echo -e "${YELLOW}Installing font…${NC}"
     sudo apt install fonts-noto fonts-anonymous-pro fonts-firacode fonts-jetbrains-mono -y
     mkdir -p "/home/$USERNAME/.local/share/fonts"
-
 
 # Piercing‑dots
     echo -e "${YELLOW}Cloning piercing‑dots repo…${NC}"
@@ -173,43 +205,6 @@ install_system() {
     cd "$BUILD_DIR" || exit
     rm -rf piercing-dots
     source ~/.bashrc
-
-
-# Ollama
-    echo -e "${YELLOW}Installing Ollama…${NC}"
-    curl -fsSL https://ollama.com/install.sh | sh
-    # ollama pull gpt-oss:120b
-    # ollama pull skippy:latest
-    # ollama pull gpt-oss:20b
-    # ollama pull gemma3:latest
-    # ollama pull gemma3n:latest
-
-# Docker
-    echo -e "${YELLOW}Installing Docker Engine…${NC}"
-    sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" | \
-        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt update -y
-    sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-    sudo usermod -aG docker "$USERNAME"
-    newgrp docker
-
-# Tailscale
-    # The Tailscale install is now handled by the same compose.yaml as Nextcloud
-    # Do not install Tailscale here to avoid conflicts
-    # curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
-    # curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
-    # sudo apt update -y
-    # sudo apt install tailscale -y
-    # sudo tailscale up
-
-    
-# Nextcloud
-#   Setup Nextcloud via Docker after first boot
-#   See: https://github.com/nextcloud/all-in-one/discussions/5439
-#   Everything you need to get Nextcloud running inside your tailscale network is there.
-#   Also check out Headscale for a self-hosted alternative to Tailscale.
 
 }
 
