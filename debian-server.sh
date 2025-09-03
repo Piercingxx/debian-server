@@ -6,6 +6,7 @@
 #   • System update & upgrade
 #   • NVIDIA 4080 driver stack
 #   • Docker
+#   • Nvim/Yazi/Starship/Zoxcide/FZF
 #   • Ollama (local LLM)
 #   • Piercing‑dots
 # ----------------------------------------------------------------
@@ -93,6 +94,7 @@ install_system() {
     sudo apt install curl -y
     sudo apt install pipx -y
     sudo apt install nodejs -y
+    sudo apt install fzf -y
 
 # Firewall
     sudo apt install ufw -y
@@ -103,6 +105,7 @@ install_system() {
 # Ollama
     echo -e "${YELLOW}Installing Ollama…${NC}"
     curl -fsSL https://ollama.com/install.sh | sh
+    sudo ufw allow 11434/tcp
     # ollama pull gpt-oss:120b
     # ollama pull skippy:latest
     # ollama pull gpt-oss:20b
