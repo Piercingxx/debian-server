@@ -83,18 +83,13 @@ install_system() {
     sudo apt clean
 
 # Depends
-    sudo apt install wget gpg -y 
-    sudo apt install zip unzip gzip tar -y
-    sudo apt install bash bash-completion -y
-    sudo apt install tar bat tree multitail fastfetch fontconfig trash-cli -y
-    sudo apt install build-essential -y
-    sudo apt install make -y
-    sudo apt install gettext -y
-    sudo apt install gcc -y
-    sudo apt install curl -y
+    sudo apt install wget gpg zip unzip gzip tar make curl gcc gettext build-essential -y
     sudo apt install pipx -y
+        # Bash Stuff
+    sudo apt install bash bash-completion bat tree multitail fastfetch fontconfig trash-cli fzf starship zoxide -y
+    # Install exa via cargo...exa is not in apt on Debian 13 yet sudo apt install exa -y
+    cargo install exa
     sudo apt install nodejs -y
-    sudo apt install fzf -y
 
 # Firewall
     sudo apt install ufw -y
@@ -131,6 +126,8 @@ install_system() {
     # sudo apt update -y
     # sudo apt install tailscale -y
     # sudo tailscale up
+
+# OpenWebUI
 
 # Nextcloud
 #   Setup Nextcloud via Docker after first boot
