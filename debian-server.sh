@@ -92,6 +92,7 @@ install_system() {
     sudo apt install nodejs -y
 
 # Firewall
+    sudo apt install fail2ban -y
     sudo apt install ufw -y
     sudo ufw allow OpenSSH
     sudo ufw allow 8080/tcp
@@ -117,6 +118,21 @@ install_system() {
     sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
     sudo usermod -aG docker "$USERNAME"
     newgrp docker
+
+# Docker create volumes and run n8n
+# For production, set up HTTPS and remove N8N_SECURE_COOKIE=false.
+    echo -e "${YELLOW}Creating Docker volumes and running n8n…${NC}"
+    docker volume create n8n_data
+    docker run -it --rm \
+        --name n8n \
+        -p 5678:5678 \
+        -e GENERIC_TIMEZONE="<YOUR_TIMEZONE>" \
+        -e TZ="<YOUR_TIMEZONE>" \
+        -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
+        -e N8N_RUNNERS_ENABLED=true \
+        -e N8N_SECURE_COOKIE=false \
+        -v n8n_data:/home/node/.n8n \
+        docker.n8n.io/n8nio/n8n
 
 # Tailscale
     # The Tailscale install is now handled by the same compose.yaml as Nextcloud
