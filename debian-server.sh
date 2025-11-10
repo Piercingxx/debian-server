@@ -85,11 +85,10 @@ install_system() {
 # Depends
     sudo apt install wget gpg zip unzip gzip tar make curl gcc gettext build-essential -y
     sudo apt install pipx -y
-        # Bash Stuff
-    sudo apt install bash bash-completion bat tree multitail fastfetch fontconfig trash-cli fzf starship zoxide -y
-    # Install exa via cargo...exa is not in apt on Debian 13 yet sudo apt install exa -y
-    cargo install exa
     sudo apt install nodejs -y
+    
+# Bash Stuff
+    install_bashrc_support
 
 # Firewall
     sudo apt install fail2ban -y
