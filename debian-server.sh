@@ -86,7 +86,10 @@ install_system() {
     sudo apt install wget gpg zip unzip gzip tar make curl gcc gettext build-essential -y
     sudo apt install pipx -y
     sudo apt install nodejs -y
-    
+    sudo apt install jq -y
+    sudo apt install libssl-dev pkg-config -y
+    sudo apt install libnotify-bin -y
+
 # Bash Stuff
     install_bashrc_support
 
@@ -106,6 +109,46 @@ install_system() {
     # ollama pull gpt-oss:20b
     # ollama pull gemma3:latest
     # ollama pull gemma3n:latest
+    # Stop and disable systemd Ollama service if running
+    if systemctl list-units --type=service | grep -q "ollama.service"; then
+        echo -e "${YELLOW}Stopping systemd Ollama service…${NC}"
+        sudo systemctl stop ollama
+        sudo systemctl disable ollama
+    fi
+    # Stop any process using port 11434 before starting Ollama
+    while sudo lsof -i :11434 | grep LISTEN; do
+        echo -e "${YELLOW}Killing process using port 11434…${NC}"
+        sudo lsof -ti :11434 | xargs -r sudo kill -9
+        sleep 1
+    done
+    # Start Ollama listening on all interfaces (0.0.0.0) at port 11434
+    OLLAMA_HOST=0.0.0.0 OLLAMA_PORT=11434 ollama serve
+    # Rewrite Ollama systemd service file for correct auto-restart and network binding
+    cat <<EOF | sudo tee /etc/systemd/system/ollama.service > /dev/null
+    [Unit]
+    Description=Ollama Service
+    After=network-online.target
+
+    [Service]
+    ExecStart=/usr/local/bin/ollama serve
+    User=ollama
+    Group=ollama
+    Restart=always
+    RestartSec=3
+    Environment="PATH=/home/dr3k/.local/bin:/home/dr3k/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/usr/local/sbin:/usr/sbin:/sbin"
+    Environment=OLLAMA_HOST=0.0.0.0
+    Environment=OLLAMA_PORT=11434
+
+    [Install]
+    WantedBy=default.target
+EOF
+    sudo systemctl daemon-reload
+    sudo systemctl enable ollama
+    sudo systemctl restart ollama
+
+
+
+
 
 # Docker
     echo -e "${YELLOW}Installing Docker Engine…${NC}"
@@ -134,15 +177,13 @@ install_system() {
         docker.n8n.io/n8nio/n8n
 
 # Tailscale
-    # The Tailscale install is now handled by the same compose.yaml as Nextcloud
-    # Do not install Tailscale here to avoid conflicts
-    # curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
-    # curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
-    # sudo apt update -y
-    # sudo apt install tailscale -y
-    # sudo tailscale up
+    curl -fsSL https://tailscale.com/install.sh | sh
+    sudo tailscale up
 
 # OpenWebUI
+docker run -d -p 8081:8080 -v open-webui:/app/backend/data -e OLLAMA_BASE_URL=http://192.168.1.242:11434 --name open-webui --restart always ghcr.io/open-webui/open-webui:main
+sudo ufw allow 8081/tcp
+
 
 # Nextcloud
 #   Setup Nextcloud via Docker after first boot
@@ -180,26 +221,25 @@ install_system() {
         # Load the new cargo environment for this shell
         source "$HOME/.cargo/env"
     fi
-    # Verify cargo is now available
-    if ! command_exists cargo; then
-        echo -e "${RED}Cargo could not be found after installation. Aborting Yazi install.${NC}"
-        exit 1
-    fi
-    echo -e "${YELLOW}Installing Yazi via source build…${NC}"
-    # Ensure Yazi's binary directory is in the PATH for this session
-    export PATH="$HOME/.cargo/bin:$PATH"
-    # Clone the Yazi repository (use the latest release tag)
-    YAZI_REPO="https://github.com/sxyazi/yazi.git"
-    YAZI_DIR="/tmp/yazi-build"
-    git clone --depth 1 "$YAZI_REPO" "$YAZI_DIR" || { echo -e "${RED}Failed to clone Yazi repo.${NC}"; exit 1; }
-    # Build the binary
-    cd "$YAZI_DIR" || exit
-    cargo build --release || { echo -e "${RED}Cargo build failed.${NC}"; exit 1; }
-    # Install the binary
-    sudo install -Dm755 target/release/yazi /usr/local/bin/yazi
-    # Clean up
-    cd "$BUILD_DIR" || exit
-    rm -rf "$YAZI_DIR"
+# Clean up broken plugins before installing
+    rm -rf ~/.config/yazi/plugins/*
+# Install yazi and ya
+    cargo install --locked yazi-cli
+    yazi pkg install ya
+# Install plugins
+    ya pkg add dedukun/bookmarks
+    ya pkg add yazi-rs/plugins:mount
+    ya pkg add dedukun/relative-motions
+    ya pkg add yazi-rs/plugins:chmod
+    ya pkg add yazi-rs/plugins:smart-enter
+    ya pkg add AnirudhG07/rich-preview
+    ya pkg add grappas/wl-clipboard
+    ya pkg add Rolv-Apneseth/starship
+    ya pkg add yazi-rs/plugins:full-border
+    ya pkg add uhs-robert/recycle-bin
+    ya pkg add yazi-rs/plugins:diff
+    yazi pkg upgrade
+
 
 # Fonts
     echo -e "${YELLOW}Installing font…${NC}"
