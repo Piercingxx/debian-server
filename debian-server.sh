@@ -97,7 +97,14 @@ install_system() {
     sudo apt install fail2ban -y
     sudo apt install ufw -y
     sudo ufw allow OpenSSH
+    sudo ufw allow SSH
     sudo ufw allow 8080/tcp
+    sudo ufw allow 11434/tcp
+    sudo ufw allow 10300/tcp
+    sudo ufw allow 10400/tcp
+    sudo ufw allow in on tailscale0
+    sudo ufw allow in on tailscale0 to any port 11434 proto tcp
+    sudo ufw allow 41641/udp   # Tailscale wire protocol
     sudo ufw enable
 
 # Ollama
@@ -178,7 +185,9 @@ EOF
 
 # Tailscale
     curl -fsSL https://tailscale.com/install.sh | sh
-    sudo tailscale up
+#    sudo tailscale up
+#    sudo systemctl enable --now tailscaled
+#    sudo tailscale up --ssh --accept-routes
 
 # OpenWebUI
 docker run -d -p 8081:8080 -v open-webui:/app/backend/data -e OLLAMA_BASE_URL=http://192.168.1.242:11434 --name open-webui --restart always ghcr.io/open-webui/open-webui:main
