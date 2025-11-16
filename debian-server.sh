@@ -89,6 +89,7 @@ install_system() {
     sudo apt install jq -y
     sudo apt install libssl-dev pkg-config -y
     sudo apt install libnotify-bin -y
+    sudo apt install trash-cli -y
 
 # Bash Stuff
     install_bashrc_support
