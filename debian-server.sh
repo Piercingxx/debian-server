@@ -221,7 +221,6 @@ sudo ufw allow 8081/tcp
     # Install Neovim
     sudo apt install neovim -y
     sudo apt install lua5.4 -y
-    sudo apt install luarocks -y
     sudo apt install python3-pip -y
     # Install Yazi
     # Ensure Rust is installed
@@ -231,12 +230,8 @@ sudo ufw allow 8081/tcp
         # Load the new cargo environment for this shell
         source "$HOME/.cargo/env"
     fi
-# Clean up broken plugins before installing
-    rm -rf ~/.config/yazi/plugins/*
-# Install yazi and ya
-    cargo install --locked yazi-cli
-    yazi pkg install ya
-# Install plugins
+    cargo install --force --git https://github.com/sxyazi/yazi.git yazi-build
+    # Install plugins
     ya pkg add dedukun/bookmarks
     ya pkg add yazi-rs/plugins:mount
     ya pkg add dedukun/relative-motions
@@ -248,7 +243,6 @@ sudo ufw allow 8081/tcp
     ya pkg add yazi-rs/plugins:full-border
     ya pkg add uhs-robert/recycle-bin
     ya pkg add yazi-rs/plugins:diff
-    yazi pkg upgrade
 
 
 # Fonts
