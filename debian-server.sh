@@ -222,6 +222,8 @@ sudo ufw allow 8081/tcp
     sudo apt install neovim -y
     sudo apt install lua5.4 -y
     sudo apt install python3-pip -y
+    sudo apt install chafa -y
+    sudo apt install ripgrep -y
     # Install Yazi
     # Ensure Rust is installed
     if ! command_exists cargo; then
