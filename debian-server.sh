@@ -94,6 +94,11 @@ install_system() {
 # Bash Stuff
     install_bashrc_support
 
+# Nginx
+    sudo apt install nginx -y
+    sudo systemctl start nginx
+    sudo systemctl enable nginx
+
 # Firewall
     sudo apt install fail2ban -y
     sudo apt install ufw -y
