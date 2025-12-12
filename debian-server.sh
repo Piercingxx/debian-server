@@ -113,6 +113,21 @@ install_system() {
     sudo ufw allow 41641/udp   # Tailscale wire protocol
     sudo ufw enable
 
+# Basic Updates
+    sudo apt install unattended-upgrades -y
+    
+# Cron job to automate updates weekly
+    UPDATE_SCRIPT="$HOME/.scripts/PiercingXX-Settings-Menu/update-system.sh"
+    LOG_FILE="/var/log/auto-update.log"
+    # Create log file
+        sudo touch "$LOG_FILE"
+        sudo chown $USER:$USER "$LOG_FILE"
+    # Remove old cron job if exists
+        crontab -l 2>/dev/null | grep -v "$UPDATE_SCRIPT" | crontab - 2>/dev/null || true
+    # Add new cron job (Tuesday 3am)
+        (crontab -l 2>/dev/null; echo "0 3 * * 2 $UPDATE_SCRIPT >> $LOG_FILE 2>&1") | crontab -
+    echo "✓ Done! System will auto-update every Tuesday at 3am"
+
 # Ollama
     echo -e "${YELLOW}Installing Ollama…${NC}"
     curl -fsSL https://ollama.com/install.sh | sh
