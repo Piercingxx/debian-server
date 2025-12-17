@@ -90,6 +90,7 @@ install_system() {
     sudo apt install libssl-dev pkg-config -y
     sudo apt install libnotify-bin -y
     sudo apt install trash-cli -y
+    sudo apt install sqlite3 -y
 
 # Bash Stuff
     install_bashrc_support
