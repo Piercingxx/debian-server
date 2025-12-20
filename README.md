@@ -10,8 +10,9 @@
 
 `debian-server.sh` is a single-file Bash installer for Debian 13 (Trixie), designed to quickly set up a media and AI workstation. It includes:
 
+- **Nginx reverse proxy**
+- **Cloudflare tunnels**
 - **NVIDIA 4080 drivers & CUDA 13.0**
-- **DaVinci Resolve Studio 18.5.1**
 - **Docker & Docker Compose**
 - **Nextcloud (Docker stack)**
 - **Ollama (local LLM runtime)**
