@@ -91,6 +91,11 @@ install_system() {
     sudo apt install libnotify-bin -y
     sudo apt install trash-cli -y
     sudo apt install sqlite3 -y
+    sudo apt install tmux -y
+    sudo apt install sshpass -y
+    sudo apt install htop -y
+    sudo apt install nvtop -y
+    sudo apt install lnav -y
 
 # Bash Stuff
     install_bashrc_support
@@ -138,7 +143,6 @@ install_system() {
     # ollama pull gpt-oss:20b
     # ollama pull gemma3:latest
     # ollama pull gemma3n:latest
-    # Stop and disable systemd Ollama service if running
     if systemctl list-units --type=service | grep -q "ollama.service"; then
         echo -e "${YELLOW}Stopping systemd Ollama service…${NC}"
         sudo systemctl stop ollama
@@ -175,9 +179,24 @@ EOF
     sudo systemctl enable ollama
     sudo systemctl restart ollama
 
-
-
-
+# Nvim Nightly & Depends
+    sudo apt install cmake ninja-build gettext unzip curl build-essential -y
+    git clone https://github.com/neovim/neovim.git
+    cd neovim || exit
+    git checkout nightly
+    make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=/usr/local/
+    sudo make install
+    cd "$builddir" || exit
+    rm -rf neovim
+    # Ensure /usr/local/bin is on PATH for all users
+    sudo tee /etc/profile.d/local-path.sh >/dev/null <<'EOF'
+export PATH="/usr/local/bin:$PATH"
+EOF
+    sudo chmod 644 /etc/profile.d/local-path.sh
+    sudo apt install lua5.4 -y
+    sudo apt install python3-pip -y
+    sudo apt install chafa -y
+    sudo apt install ripgrep -y
 
 # Docker
     echo -e "${YELLOW}Installing Docker Engine…${NC}"
@@ -190,20 +209,6 @@ EOF
     sudo usermod -aG docker "$USERNAME"
     newgrp docker
 
-# Docker create volumes and run n8n
-# For production, set up HTTPS and remove N8N_SECURE_COOKIE=false.
-    echo -e "${YELLOW}Creating Docker volumes and running n8n…${NC}"
-    docker volume create n8n_data
-    docker run -it --rm \
-        --name n8n \
-        -p 5678:5678 \
-        -e GENERIC_TIMEZONE="<YOUR_TIMEZONE>" \
-        -e TZ="<YOUR_TIMEZONE>" \
-        -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
-        -e N8N_RUNNERS_ENABLED=true \
-        -e N8N_SECURE_COOKIE=false \
-        -v n8n_data:/home/node/.n8n \
-        docker.n8n.io/n8nio/n8n
 
 # Tailscale
     curl -fsSL https://tailscale.com/install.sh | sh
