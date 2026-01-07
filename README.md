@@ -75,7 +75,7 @@ docker ps
 ```
 
 ## Security notes 🔒
-- No secrets committed. Update all CHANGE_ME in ~/.env and compose files.
+- Update all CHANGE_ME in ~/.env and compose files.
 - Prefer Tailscale or Cloudflare Tunnel over raw port exposure.
 - UFW rules pre-open the service ports listed above.
 
@@ -110,5 +110,5 @@ tar -czf "$BACKUP_DIR/configs.tar.gz" ~/.docker/ ~/.env ~/.scripts/ /etc/nginx/s
 ```
 
 ## Philosophy 🌀
-Press button, watch the chaos organize itself. Reproducible, opinionated, bash-first. If you like frictionless servers, this is that.
+Press button, watch the chaos organize itself. Reproducible, opinionated, bash-first. If you like frictionless servers, this is as close as it gets.
 
