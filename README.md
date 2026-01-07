@@ -1,6 +1,6 @@
 # Debian Server · Press button, get stack
 
-Headless Debian 13 build that turns a fresh VM into a self-hosting workhorse: Nextcloud AIO, Ollama + OpenWebUI, Stable Diffusion, n8n, Audiobookshelf, Wyoming voice, Cloudflare Tunnel, Tailscale, Nginx, Docker/Compose, PHP 8.4-FPM, ClamAV, log streaming. Menu-driven, opinionated, reproducible.
+Headless Debian 13 build that turns a fresh install into a self-hosting workhorse: Nextcloud AIO, Ollama + OpenWebUI, Stable Diffusion, n8n, Audiobookshelf, Wyoming voice, Cloudflare Tunnel, Tailscale, Nginx, Docker/Compose, PHP 8.4-FPM, ClamAV, log streaming. Menu-driven, opinionated, reproducible.
 
 ## What you get 🧰
 - **Core**: Debian 13, UFW + fail2ban, unattended-upgrades, nginx, php8.4-fpm, docker w/ nvidia-runtime, tailscale, cloudflared, clamav, unified log streamer
