@@ -693,6 +693,7 @@ EOF
     sudo cp /var/cuda-repo-debian12-13-0-local/cuda-*-keyring.gpg /usr/share/keyrings/
     sudo apt update
     sudo apt install cuda-toolkit-13-0 -y
+    sudo apt install nvidia-driver-550 -y
     # Clean up
     apt autoremove -y
 
