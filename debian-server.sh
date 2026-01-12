@@ -96,6 +96,9 @@ install_system() {
     sudo apt install htop -y
     sudo apt install nvtop -y
     sudo apt install lnav -y
+    sudo apt install smartmontools -y
+    sudo apt installlsscsi -y
+    sudo apt installsg3-utils -y
 
 # Bash Stuff
     install_bashrc_support
