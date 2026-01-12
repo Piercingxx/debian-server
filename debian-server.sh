@@ -100,6 +100,7 @@ install_system() {
     sudo apt install smartmontools -y
     sudo apt installlsscsi -y
     sudo apt installsg3-utils -y
+    sudo apt install ledmon -y
 
 # Bash Stuff
     install_bashrc_support
