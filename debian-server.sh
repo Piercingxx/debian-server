@@ -76,6 +76,7 @@ install_zoxide() {
 # Core install
 install_system() {
     echo -e "${YELLOW}Updating system packages…${NC}"
+    sudo sed -i 's/main non-free-firmware/main contrib non-free non-free-firmware/g' /etc/apt/sources.list && cat /etc/apt/sources.list | grep -v '^#' | grep -v '^$'
     sudo apt update -y
     sudo apt upgrade -y
     sudo apt dist-upgrade -y
