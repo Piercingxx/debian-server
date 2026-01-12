@@ -15,8 +15,6 @@ NC='\e[0m'
 # Config
 DOMAIN="${DOMAIN:-hhamanagement.com}"
 BUILD_DIR=$(pwd)
-USERNAME=$(id -u -n 1000)
-USER_HOME="/home/$USERNAME"
 
 # Helper functions
 command_exists() { command -v "$1" >/dev/null 2>&1; }
@@ -109,7 +107,7 @@ install_system() {
 
 # PHP 8.4-FPM
     echo -e "${YELLOW}Installing PHP 8.4-FPM…${NC}"
-    sudo apt install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg2
+    sudo apt install -y lsb-release ca-certificates apt-transport-https gnupg2
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/sury-php.list
     curl -fsSL https://packages.sury.org/php/apt.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-php.gpg
     sudo apt update
@@ -752,7 +750,8 @@ EOF
 }
 
 # Main
-USERNAME=$(id -u -n 1000)
+USERNAME="${SUDO_USER:-$(whoami)}"
+USER_HOME="/home/$USERNAME"
 BUILD_DIR=$(pwd)
 
 # Ensure whiptail is present
