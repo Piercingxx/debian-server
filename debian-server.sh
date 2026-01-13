@@ -447,19 +447,9 @@ EOF
 
 # Cloudflare Tunnel
     echo -e "${YELLOW}Installing Cloudflare Tunnel (cloudflared)…${NC}"
-    curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-    sudo dpkg -i cloudflared.deb
-    rm cloudflared.deb
-    # Manual configuration required:
-    # 1. Run: cloudflared tunnel login
-    # 2. Run: cloudflared tunnel create <tunnel-name>
-    # 3. Configure tunnel in ~/.cloudflared/config.yml
-    # 4. Run: sudo cloudflared service install
-    echo -e "${BLUE}Cloudflared installed. Manual configuration required:${NC}"
-    echo -e "${BLUE}  1. cloudflared tunnel login${NC}"
-    echo -e "${BLUE}  2. cloudflared tunnel create <tunnel-name>${NC}"
-    echo -e "${BLUE}  3. Configure ~/.cloudflared/config.yml${NC}"
-    echo -e "${BLUE}  4. sudo cloudflared service install${NC}"
+    sudo mkdir -p --mode=0755 /usr/share/keyrings && curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null && echo "GPG key downloaded"
+    echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list && echo "Repository added"
+    sudo apt-get update && sudo apt-get install -y cloudflared && echo "Cloudflared installed from repository"
 
 # Tailscale
     echo -e "${YELLOW}Installing Tailscale VPN…${NC}"
