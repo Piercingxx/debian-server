@@ -1,6 +1,7 @@
 # Services & Ports · at a glance
 
 Everything the script brings online and where to reach it.
+After you setup everything, use UFW to lock down all these ports and restrict it to Tailscare and Cloudflare Tunnel.
 
 ## Web entry points 🌐
 | Service | Port(s) | Purpose | URL pattern |
