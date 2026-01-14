@@ -121,6 +121,7 @@ install_system() {
     sudo systemctl enable php8.4-fpm
 
 # Firewall
+    #After setup, use UFW to lock down all these ports and restrict server to Tailscare and Cloudflare Tunnel.
     sudo apt install fail2ban -y
     sudo apt install ufw -y
     sudo ufw allow OpenSSH
