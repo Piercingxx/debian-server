@@ -102,6 +102,7 @@ install_system() {
     sudo apt installsg3-utils -y
     sudo apt install ledmon -y
     sudo apt install lm-sensors -y
+    sudo apt install bc -y
 
 # Bash Stuff
     install_bashrc_support
