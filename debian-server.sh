@@ -101,6 +101,7 @@ install_system() {
     sudo apt installlsscsi -y
     sudo apt installsg3-utils -y
     sudo apt install ledmon -y
+    sudo apt install lm-sensors -y
 
 # Bash Stuff
     install_bashrc_support
