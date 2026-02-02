@@ -104,9 +104,6 @@ install_system() {
     sudo apt install lm-sensors -y
     sudo apt install bc -y
 
-# Bash Stuff
-    install_bashrc_support
-
 # Nginx
     sudo apt install nginx -y
     sudo systemctl start nginx
@@ -398,25 +395,6 @@ EOF
     echo -e "${BLUE}Then reload nginx: sudo systemctl reload nginx${NC}"
     echo -e "${BLUE}Replace DOMAIN.COM with your actual domain in each config file${NC}"
 
-# Nvim Nightly & Depends
-    sudo apt install cmake ninja-build gettext unzip curl build-essential -y
-    git clone https://github.com/neovim/neovim.git
-    cd neovim || exit
-    git checkout nightly
-    make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=/usr/local/
-    sudo make install
-    cd "$BUILD_DIR" || exit
-    rm -rf neovim
-    # Ensure /usr/local/bin is on PATH for all users
-    sudo tee /etc/profile.d/local-path.sh >/dev/null <<'EOF'
-export PATH="/usr/local/bin:$PATH"
-EOF
-    sudo chmod 644 /etc/profile.d/local-path.sh
-    sudo apt install lua5.4 -y
-    sudo apt install python3-pip -y
-    sudo apt install chafa -y
-    sudo apt install ripgrep -y
-
 # Docker
     echo -e "${YELLOW}Installing Docker Engine…${NC}"
     sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
@@ -697,12 +675,25 @@ EOF
 # Yazi & Neovim
     echo -e "${YELLOW}Installing Yazi (file‑manager) and Neovim…${NC}"
     # Install Neovim
-    sudo apt install neovim -y
+# Nvim Nightly & Depends
+    sudo apt install cmake ninja-build gettext unzip curl build-essential -y
+    git clone https://github.com/neovim/neovim.git
+    cd neovim || exit
+    git checkout nightly
+    make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=/usr/local/
+    sudo make install
+    cd "$BUILD_DIR" || exit
+    rm -rf neovim
+    # Ensure /usr/local/bin is on PATH for all users
+    sudo tee /etc/profile.d/local-path.sh >/dev/null <<'EOF'
+export PATH="/usr/local/bin:$PATH"
+EOF
+    sudo chmod 644 /etc/profile.d/local-path.sh
     sudo apt install lua5.4 -y
     sudo apt install python3-pip -y
     sudo apt install chafa -y
     sudo apt install ripgrep -y
-    # Install Yazi
+# Install Yazi
     # Ensure Rust is installed
     if ! command_exists cargo; then
         echo -e "${YELLOW}Installing Rust toolchain…${NC}"
@@ -744,6 +735,9 @@ EOF
     cd "$BUILD_DIR" || exit
     rm -rf piercing-dots
     source ~/.bashrc
+
+# Bash Stuff
+    install_bashrc_support
 
 }
 
