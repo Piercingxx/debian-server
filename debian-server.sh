@@ -98,8 +98,8 @@ install_system() {
     sudo apt install nvtop -y
     sudo apt install lnav -y
     sudo apt install smartmontools -y
-    sudo apt installlsscsi -y
-    sudo apt installsg3-utils -y
+    sudo apt install lsscsi -y
+    sudo apt install sg3-utils -y
     sudo apt install ledmon -y
     sudo apt install lm-sensors -y
     sudo apt install bc -y
